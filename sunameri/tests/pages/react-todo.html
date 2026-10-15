@@ -1,0 +1,39 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>React Todo</title>
+<style>
+body { font-family: sans-serif; margin: 20px; }
+.done { text-decoration: line-through; color: #888; }
+ul { padding-left: 20px; }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script src="vendor/react.production.min.js"></script>
+<script src="vendor/react-dom.production.min.js"></script>
+<script>
+const h = React.createElement;
+function App() {
+  const [todos, setTodos] = React.useState([
+    { id: 1, text: "Blitz を動かす", done: true },
+    { id: 2, text: "React を動かす", done: false },
+    { id: 3, text: "X を表示する", done: false },
+  ]);
+  const [text, setText] = React.useState("");
+  const [tick, setTick] = React.useState(0);
+  React.useEffect(() => {
+    const id = setTimeout(() => setTick(t => t + 1), 50);
+    return () => clearTimeout(id);
+  }, [tick]);
+  React.useEffect(() => { console.log("React mounted, todos=" + todos.length); }, []);
+  return h("div", null,
+    h("h1", null, "React Todo (tick " + tick + ")"),
+    h("ul", null, todos.map(t => h("li", { key: t.id, className: t.done ? "done" : "",
+      onClick: () => setTodos(todos.map(x => x.id === t.id ? { ...x, done: !x.done } : x)) }, t.text))),
+    h("form", { onSubmit: e => { e.preventDefault(); if (!text) return; setTodos([...todos, { id: Date.now(), text, done: false }]); setText(""); } },
+      h("input", { value: text, onChange: e => setText(e.target.value), placeholder: "新しい項目" }),
+      h("button", { type: "submit" }, "追加")));
+}
+ReactDOM.createRoot(document.getElementById("root")).render(h(App));
+console.log("render called; root html length=" + document.getElementById("root").innerHTML.length);
+</script>
+</body></html>

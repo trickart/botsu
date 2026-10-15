@@ -1,0 +1,17 @@
+<!doctype html><html><body><div id="ed" contenteditable="true">hello world</div><p id="out"></p>
+<script>
+const out = [];
+try {
+  const sel = window.getSelection();
+  out.push("rc0=" + sel.rangeCount + " type=" + sel.type);
+  const t = document.getElementById("ed").firstChild;
+  const r = document.createRange(); r.setStart(t, 0); r.setEnd(t, 5);
+  sel.removeAllRanges(); sel.addRange(r);
+  out.push("rc=" + sel.rangeCount + " anchor=" + sel.anchorNode.nodeName + ":" + sel.anchorOffset + "-" + sel.focusOffset + " str=" + sel.toString() + " type=" + sel.type + " collapsed=" + sel.isCollapsed);
+  sel.collapse(t, 2); out.push("after collapse: " + sel.focusOffset + " " + sel.isCollapsed + " type=" + sel.type);
+  sel.extend(t, 7); out.push("after extend: " + sel.anchorOffset + "-" + sel.focusOffset + " dir=" + sel.direction + " str=" + sel.toString());
+  const g = sel.getRangeAt(0); out.push("range " + g.startOffset + "-" + g.endOffset + " " + (sel instanceof Selection));
+  let n = 0; document.addEventListener("selectionchange", () => n++); sel.collapseToEnd(); out.push("selectionchange fired=" + n + " isCollapsed=" + sel.isCollapsed);
+} catch (e) { out.push("ERR " + e + " " + e.stack); }
+document.getElementById("out").textContent = out.join(" | ");
+</script></body></html>

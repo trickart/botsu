@@ -1,0 +1,58 @@
+# sunameri: 上流 Blitz(コミット e72650a6e67941852fddf025295cfee30c39ea32)の packages/blitz-paint をコピーし、
+# workspace 依存を具体的なバージョンに置き換えたもの。変更点は UPSTREAM.md を参照。
+[package]
+name = "blitz-paint"
+description = "Paint a Blitz Document using anyrender"
+documentation = "https://docs.rs/blitz-paint"
+version = "0.3.0-beta.3"
+license = "MIT OR Apache-2.0"
+homepage = "https://github.com/dioxuslabs/blitz"
+repository = "https://github.com/dioxuslabs/blitz"
+categories = ["gui"]
+edition = "2024"
+rust-version = "1.91.0"
+
+[features]
+default = ["svg"]
+tracing = ["dep:tracing"]
+svg = ["dep:anyrender_svg", "dep:usvg", "blitz-dom/svg"]
+custom-widget = ["blitz-dom/custom-widget"]
+font-embolden = []
+apple-font-embolden = []
+scrollbars = ["blitz-dom/scrollbars"]
+
+[dependencies]
+# Blitz dependencies
+anyrender = { version = "0.14.0" }
+anyrender_svg = { version = "0.15.0", optional = true }
+blitz-traits = { git = "https://github.com/DioxusLabs/blitz", rev = "e72650a6e67941852fddf025295cfee30c39ea32", default-features = false }
+blitz-dom = { git = "https://github.com/DioxusLabs/blitz", rev = "e72650a6e67941852fddf025295cfee30c39ea32", default-features = false }
+
+# Servo dependencies
+style = { version = "0.22.0", package = "stylo" }
+euclid = "0.22"
+
+# DioxusLabs dependencies
+taffy = { git = "https://github.com/DioxusLabs/taffy", rev = "6c2106e3df79493d304f954dc2cd4a4a382981d3", default-features = false, features = [
+    "std",
+    "flexbox",
+    "flexbox_balance",
+    "grid",
+    "block_layout",
+    "content_size",
+    "calc",
+    "detailed_layout_info",
+] }
+
+# Linebender + WGPU dependencies
+parley = { version = "0.12", default-features = false, features = ["std", "bytemuck"] }
+skrifa = { version = "0.44", default-features = false, features = ["std"] }
+color = "0.3"
+peniko = "0.6.0"
+kurbo = "0.13.1"
+usvg = { version = "0.48.1", optional = true }
+
+# Other dependencies
+bytemuck = "1"
+smallvec = "1"
+tracing = { version = "0.1.40", optional = true }

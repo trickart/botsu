@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<title>sunameri</title>
+<style>
+  html, body { margin: 0; padding: 0; height: 100%; background: #f2f2f2; font-family: sans-serif; font-size: 13px; }
+  body { display: flex; flex-direction: column; }
+  #toolbar { display: flex; align-items: center; gap: 4px; padding: 4px 6px; background: #e4e4e4; border-bottom: 1px solid #c8c8c8; height: 28px; flex: none; }
+  #toolbar button { height: 24px; min-width: 28px; padding: 0 6px; border: 1px solid #b8b8b8; border-radius: 4px; background: #fafafa; color: #222; font-size: 13px; }
+  #toolbar button[disabled] { color: #aaa; }
+  #url { flex: 1; height: 22px; padding: 0 8px; border: 1px solid #b8b8b8; border-radius: 12px; background: #fff; font-size: 13px; }
+  #status { width: 14px; height: 14px; border-radius: 7px; background: #bbb; flex: none; }
+  #status.loading { background: #2a7de1; }
+  #page { flex: 1; width: 100%; border: 0; background: #fff; display: block; }
+</style>
+</head>
+<body>
+<div id="toolbar">
+  <button id="back" title="戻る" disabled>&#9664;</button>
+  <button id="fwd" title="進む" disabled>&#9654;</button>
+  <button id="reload" title="再読み込み">&#8635;</button>
+  <input id="url" type="text" placeholder="URL を入力" autocomplete="off" spellcheck="false">
+  <button id="go">開く</button>
+  <div id="status"></div>
+</div>
+<iframe id="page"></iframe>
+<script>
+  // Rust 側とのやりとり: JS → Rust は __blitz_send_message、Rust → JS は sunameriShell.* の eval
+  const send = (msg) => __blitz_send_message(msg);
+  const url = document.getElementById("url");
+  const go = () => { const v = url.value.trim(); if (v) send("navigate " + v); };
+  document.getElementById("go").addEventListener("click", go);
+  url.addEventListener("keydown", (e) => { if (e.key === "Enter") go(); });
+  document.getElementById("back").addEventListener("click", () => send("back"));
+  document.getElementById("fwd").addEventListener("click", () => send("forward"));
+  document.getElementById("reload").addEventListener("click", () => send("reload"));
+  // Ctrl/Cmd+L で URL バーへ、Alt+←/→ で戻る/進む
+  document.addEventListener("keydown", (e) => {
+    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "l") { url.focus(); url.select(); e.preventDefault(); }
+    else if (e.altKey && e.key === "ArrowLeft") send("back");
+    else if (e.altKey && e.key === "ArrowRight") send("forward");
+    else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "r") send("reload");
+  });
+  globalThis.sunameriShell = {
+    setUrl(u) { url.value = u; },
+    setLoading(on) { document.getElementById("status").className = on ? "loading" : ""; },
+    focusUrl() { url.focus(); if (typeof url.select === "function") url.select(); },
+    setNav(canBack, canFwd) { document.getElementById("back").disabled = !canBack; document.getElementById("fwd").disabled = !canFwd; },
+  };
+</script>
+</body>
+</html>

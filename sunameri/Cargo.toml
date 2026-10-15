@@ -1,0 +1,77 @@
+[workspace]
+resolver = "2"
+members = ["crates/sunameri", "crates/sunameri-net", "crates/blitz-vibey-script"]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2024"
+license = "MIT OR Apache-2.0"
+rust-version = "1.91.0"
+homepage = "https://github.com/trickart/sunameri"
+repository = "https://github.com/trickart/sunameri"
+categories = ["gui"]
+
+[workspace.dependencies]
+# Blitz(HTML/CSS エンジン + Boa ベースの JS 実行)。blitz-vibey-script は crates.io 未公開のため
+# すべて同一コミットの git 依存に揃える(crates.io 版と混在させると型が二重化する)。
+blitz-dom = { git = "https://github.com/DioxusLabs/blitz", rev = "e72650a6e67941852fddf025295cfee30c39ea32", default-features = false }
+blitz-html = { git = "https://github.com/DioxusLabs/blitz", rev = "e72650a6e67941852fddf025295cfee30c39ea32", default-features = false }
+blitz-net = { git = "https://github.com/DioxusLabs/blitz", rev = "e72650a6e67941852fddf025295cfee30c39ea32", default-features = false }
+blitz-paint = { git = "https://github.com/DioxusLabs/blitz", rev = "e72650a6e67941852fddf025295cfee30c39ea32", default-features = false }
+blitz-shell = { git = "https://github.com/DioxusLabs/blitz", rev = "e72650a6e67941852fddf025295cfee30c39ea32", default-features = false }
+blitz-traits = { git = "https://github.com/DioxusLabs/blitz", rev = "e72650a6e67941852fddf025295cfee30c39ea32", default-features = false }
+# blitz-vibey-script は上流(同コミット)の packages/blitz-vibey-script をベンダリングしたもの。
+# X に必要な Web API を追加していく。上流へ還元できる変更は PR にする。
+blitz-vibey-script = { path = "crates/blitz-vibey-script", default-features = false }
+
+# CPU ラスタライザ(NetWalker には使える GPU ドライバが無いため CPU 描画を主系にする)
+anyrender_vello_cpu = { version = "0.18.0", features = ["softbuffer_window_renderer"] }
+
+anyrender = "0.14.0"
+sunameri-net = { path = "crates/sunameri-net" }
+
+# blitz-vibey-script の依存(上流 Blitz workspace と同じバージョン)
+style = { version = "0.22.0", package = "stylo" }
+markup5ever = "0.40.0"
+keyboard-types = "0.7"
+data-url = "0.3.1"
+web-time = "1"
+boa_engine = "0.22"
+boa_runtime = "0.22"
+boa_gc = "0.22"
+tracing = "0.1.40"
+icu_properties = { version = "2.3", default-features = false, features = ["compiled_data"] }
+peniko = "0.6"
+png = "0.18"
+tokio = { version = "1.42", features = ["rt-multi-thread", "time", "sync", "macros"] }
+url = "2.5"
+
+# 開発ビルドでも依存クレート(stylo 等)は最適化しておかないと実用速度にならない
+[profile.dev.package."*"]
+opt-level = 2
+
+# release: 日常の動作確認用(ビルド時間を抑える)
+[profile.release]
+opt-level = 3
+lto = "thin"
+codegen-units = 16
+debug = "line-tables-only"
+
+# dist: NetWalker へ配布する最終ビルド(サイズと速度を優先)
+[profile.dist]
+inherits = "release"
+lto = "fat"
+codegen-units = 1
+panic = "abort"
+strip = true
+debug = false
+
+# Boa に sunameri 独自のパッチを当てる(vendor/boa_engine/SUNAMERI_PATCHES.md を参照)
+[patch.crates-io]
+boa_engine = { path = "vendor/boa_engine" }
+boa_ast = { path = "vendor/boa_ast" }
+
+# blitz-paint に sunameri 独自の修正を当てる(vendor/blitz-paint/UPSTREAM.md を参照)
+[patch."https://github.com/DioxusLabs/blitz"]
+blitz-paint = { path = "vendor/blitz-paint" }
+blitz-html = { path = "vendor/blitz-html" }

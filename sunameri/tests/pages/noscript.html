@@ -1,0 +1,5 @@
+<!doctype html><html><head><title>noscript test</title></head><body>
+<noscript><style>#app { display: none; }</style><p id="nojs">JavaScript is not available.</p></noscript>
+<div id="app">app content</div>
+<script>document.getElementById("app").textContent += " (js ran; noscript children=" + document.querySelector("noscript").children.length + ")";</script>
+</body></html>

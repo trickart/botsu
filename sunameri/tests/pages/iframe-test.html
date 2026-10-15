@@ -1,0 +1,17 @@
+<!doctype html><html><body><p id="out">pending</p>
+<script>
+try {
+  const f = document.createElement("iframe");
+  f.style.display = "none";
+  document.body.appendChild(f);
+  const w = f.contentWindow;
+  const off = new w.Date().getTimezoneOffset();
+  const d = f.contentDocument;
+  const ok = typeof off === "number" && d && d.body && w === window;
+  const r = document.createElement("iframe");
+  r.src = "https://accounts.google.com/gsi/iframe";
+  document.body.appendChild(r);
+  const cross = r.contentWindow && r.contentDocument === null && typeof r.contentWindow.postMessage === "function";
+  document.getElementById("out").textContent = (ok && cross) ? "OK offset=" + off : "NG off=" + off + " doc=" + !!d + " same=" + (w === window) + " cross=" + cross;
+} catch (e) { document.getElementById("out").textContent = "ERR " + e; }
+</script></body></html>

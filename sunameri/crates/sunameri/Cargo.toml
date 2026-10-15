@@ -1,0 +1,29 @@
+[package]
+name = "sunameri"
+description = "省メモリ Web ブラウザ(macOS / armhf Linux)"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+build = "build.rs"
+
+[[bin]]
+name = "sunameri"
+path = "src/main.rs"
+
+[dependencies]
+blitz-dom = { workspace = true, features = ["svg", "woff", "system-fonts", "text-transform-icu", "floats", "complex-scripts"] }
+blitz-html = { workspace = true }
+sunameri-net = { workspace = true }
+blitz-shell = { workspace = true, features = ["clipboard"] }
+blitz-traits = { workspace = true }
+blitz-vibey-script = { workspace = true }
+anyrender_vello_cpu = { workspace = true }
+anyrender = { workspace = true }
+blitz-paint = { workspace = true }
+peniko = { workspace = true }
+png = { workspace = true }
+tokio = { workspace = true }
+url = { workspace = true }
+log = "0.4"
+winit = "=0.31.0-beta.3"
